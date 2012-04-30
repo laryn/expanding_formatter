@@ -187,19 +187,39 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
 
     case 'expanding_formatter_text_summary_or_trimmed':
       foreach ($items as $delta => $item) {
+        $original = _text_sanitize($instance, $langcode, $item, 'value');
         if (!empty($item['summary'])) {
-          $output = _text_sanitize($instance, $langcode, $item, 'summary');
+          $summary = _text_sanitize($instance, $langcode, $item, 'summary');
         }
         else {
-          $output = _text_sanitize($instance, $langcode, $item, 'value');
-          $output = text_summary($output, $instance['settings']['text_processing'] ? $item['format'] : NULL, $display['settings']['trim_length']);
+          $summary = text_summary($original, $instance['settings']['text_processing'] ? $item['format'] : NULL, $display['settings']['trim_length']);
         }
-        $element[$delta] = array(
-          '#markup' => $output,
-          '#attached' => array(
-            'js' => array(drupal_get_path('module', 'expanding_formatter') . '/expanding_formatter.js'),
-          ),
-        );
+        $more = str_replace(strip_tags($summary), '', $original);
+        // Render expandable content
+        if (!empty($more)) {
+          if ($display['settings']['trim_ellipsis']) {
+            $summary .= '<span class="trim-ellipsis">... </span>';
+          }
+          $classes = '';
+          if (!empty($display['settings']['trigger_css'])) {
+            $classes = ' ' . $display['settings']['trigger_css'];
+          }
+          $summary .= '<a class="trigger' . $classes . '" href="javascript:void(0)">' . $display['settings']['trigger_label'] . '</a>';
+          $summary .= '<div class="content">' . $more . '</div>';
+          $element[$delta] = array(
+            '#prefix' => '<div class="expanding-formatter ' . $display['settings']['effect'] . '">',
+            '#suffix' => '</div>',
+            '#markup' => $summary,
+            '#attached' => array(
+              'css' => array(drupal_get_path('module', 'expanding_formatter') . '/expanding_formatter.css'),
+              'js' => array(drupal_get_path('module', 'expanding_formatter') . '/expanding_formatter.js'),
+            ),
+          );
+        }
+        // Content is short enough, render entire original output.
+        else {
+          $element[$delta] = array('#markup' => $original);
+        }
       }
       break;
   }
