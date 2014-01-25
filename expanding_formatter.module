@@ -8,6 +8,35 @@
  */
 
 /**
+ * Implements hook_theme().
+ */
+function expanding_formatter_theme() {
+  $hooks['expanding_formatter_ellipsis'] = array(
+    'variables' => array(
+      'attributes' => array(),
+      'ellipsis' => '…',
+      'settings' => expanding_formatter_default_settings(),
+    ),
+  );
+  return $hooks;
+}
+
+/**
+ * Returns HTML for an ellipsis in an expanding formatter field.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: (optional) An array of HTML attributes to apply.
+ *   - ellipsis: The visible text to use, defaults to '…'.
+ *   - settings: An associative array containing the formatter settings used.
+ *
+ * @see expanding_formatter_default_settings()
+ */
+function theme_expanding_formatter_ellipsis($variables) {
+  return '<span' . drupal_attributes($variables['attributes']) . '>' . $variables['ellipsis'] . '</span>';
+}
+
+/**
  * Provide default settings for the formatter.
  */
 function expanding_formatter_default_settings() {
@@ -18,6 +47,8 @@ function expanding_formatter_default_settings() {
     'trigger_css' => '',
     'trim_length' => 200,
     'trim_ellipsis' => TRUE,
+    'css3' => TRUE,
+    'inline' => TRUE,
   );
 }
 
@@ -81,6 +112,7 @@ function expanding_formatter_field_formatter_info_alter(&$info) {
 function expanding_formatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
+  $settings += expanding_formatter_default_settings();
   $element = array();
   if (strpos($display['type'], '_trimmed') !== FALSE) {
     $element['effect'] = array(
@@ -127,6 +159,18 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
       '#type' => 'checkbox',
       '#default_value' => $settings['trim_ellipsis'],
     );
+    $element['css3'] = array(
+      '#title' => t('Use CSS3 !transitions for effects', array(
+        '!transitions' => l(t('Transitions'), 'http://www.w3.org/TR/css3-transitions/'),
+      )),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['css3'],
+    );
+    $element['inline'] = array(
+      '#title' => t('Inline joining of summary/content'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['inline'],
+    );
   }
   return $element;
 }
@@ -137,6 +181,7 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
 function expanding_formatter_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
+  $settings += expanding_formatter_default_settings();
   $summary = array();
   switch ($settings['effect']) {
     case 'fade':
@@ -165,83 +210,249 @@ function expanding_formatter_field_formatter_settings_summary($field, $instance,
  * Implements hook_field_formatter_view().
  */
 function expanding_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
-  $summary = '';
-  switch ($display['type']) {
-    case 'expanding_formatter_text_trimmed':
-      foreach ($items as $delta => $item) {
-        $original = _text_sanitize($instance, $langcode, $item, 'value');
-        if ($display['type'] == 'expanding_formatter_text_trimmed') {
-          $summary = text_summary($original, $instance['settings']['text_processing'] ? $item['format'] : NULL, $display['settings']['trim_length']);
-        }
-        $more = str_replace($summary, '', $original);
-        // Render expandable content.
-        if (!empty($more)) {
-          if ($display['settings']['trim_ellipsis']) {
-            $summary .= '<span class="trim-ellipsis">… </span>';
-          }
-          $classes = '';
-          if (!empty($display['settings']['trigger_css'])) {
-            $classes = ' ' . $display['settings']['trigger_css'];
-          }
-          $summary .= '<a class="trigger expand' . $classes . '" href="javascript:void(0)">' . $display['settings']['expand_label'] . '</a>';
-          $summary .= '<div class="content">' . $more;
-          $summary .= '<a class="trigger collapse' . $classes . '" href="javascript:void(0)">' . $display['settings']['collapse_label'] . '</a></div>';
-          $element[$delta] = array(
-            '#prefix' => '<div class="expanding-formatter ' . $display['settings']['effect'] . '">',
-            '#suffix' => '</div>',
-            '#markup' => $summary,
-            '#attached' => array(
-              'css' => array(drupal_get_path('module', 'expanding_formatter') . '/expanding_formatter.css'),
-              'js' => array(drupal_get_path('module', 'expanding_formatter') . '/expanding_formatter.js'),
-            ),
-          );
-        }
-        // Content is short enough, render entire original output.
-        else {
-          $element[$delta] = array('#markup' => $original);
-        }
-      }
-      break;
+  if ($display['type'] === 'expanding_formatter_text_trimmed' || $display['type'] === 'expanding_formatter_text_summary_or_trimmed') {
+    // Get the settings and extend default ones that don't exist.
+    $settings = $display['settings'];
+    $settings += expanding_formatter_default_settings();
 
-    case 'expanding_formatter_text_summary_or_trimmed':
-      foreach ($items as $delta => $item) {
-        $original = _text_sanitize($instance, $langcode, $item, 'value');
-        if (!empty($item['summary'])) {
-          $summary = _text_sanitize($instance, $langcode, $item, 'summary');
-        }
-        else {
-          $summary = text_summary($original, $instance['settings']['text_processing'] ? $item['format'] : NULL, $display['settings']['trim_length']);
-        }
-        $more = str_replace(strip_tags($summary), '', $original);
-        // Render expandable content.
-        if (!empty($more)) {
-          if ($display['settings']['trim_ellipsis']) {
-            $summary .= '<span class="trim-ellipsis">… </span>';
-          }
-          $classes = '';
-          if (!empty($display['settings']['trigger_css'])) {
-            $classes = ' ' . $display['settings']['trigger_css'];
-          }
-          $summary .= '<a class="trigger expand' . $classes . '" href="javascript:void(0)">' . $display['settings']['expand_label'] . '</a>';
-          $summary .= '<div class="content">' . $more;
-          $summary .= '<a class="trigger collapse' . $classes . '" href="javascript:void(0)">' . $display['settings']['collapse_label'] . '</a></div>';
-          $element[$delta] = array(
-            '#prefix' => '<div class="expanding-formatter ' . $display['settings']['effect'] . '">',
-            '#suffix' => '</div>',
-            '#markup' => $summary,
-            '#attached' => array(
-              'css' => array(drupal_get_path('module', 'expanding_formatter') . '/expanding_formatter.css'),
-              'js' => array(drupal_get_path('module', 'expanding_formatter') . '/expanding_formatter.js'),
+    // Attach the necessary resources.
+    $module_path = drupal_get_path('module', 'expanding_formatter');
+    $element = array(
+      '#attached' => array(
+        'css' => array($module_path . '/css/expanding_formatter.css'),
+        'js' => array($module_path . '/js/expanding_formatter.js'),
+      ),
+    );
+
+    // Create a link for the toggle.
+    $trigger_classes = array('trigger');
+    if (!empty($settings['trigger_css'])) {
+      $trigger_classes += explode(' ', $settings['trigger_css']);
+    }
+    $trigger = array(
+      '#theme' => 'link',
+      '#text' => $settings['expand_label'],
+      '#path' => 'javascript:void(0)',
+      '#options' => array(
+        'external' => TRUE,
+        'html' => FALSE,
+        'attributes' => array(
+          'class' => $trigger_classes,
+        ),
+      ),
+    );
+
+    // Iterate through each item in the field, for unlimited values.
+    foreach ($items as $delta => $item) {
+      $element[$delta] = array(
+        '#theme_wrappers' => array('container'),
+        '#expanding_formatter' => TRUE,
+        '#attributes' => array(
+          'class' => array(
+            'expanding-formatter',
+          ),
+          'data-css3' => $settings['css3'],
+          'data-effect' => $settings['effect'],
+          'data-inline' => $settings['inline'],
+          'data-expand-label' => $settings['expand_label'],
+          'data-collapse-label' => $settings['collapse_label'],
+        ),
+      );
+      $original = _text_sanitize($instance, $langcode, $item, 'value');
+      if ($display['type'] === 'expanding_formatter_text_summary_or_trimmed' && !empty($item['summary'])) {
+        $element[$delta]['summary'] = array(
+          '#theme_wrappers' => array('container'),
+          '#attributes' => array(
+            'class' => array('expanded-formatter-summary'),
+          ),
+          'value' => array(
+            '#markup' => _text_sanitize($instance, $langcode, $item, 'summary'),
+          ),
+        );
+      }
+      else {
+        $element[$delta]['summary'] = array(
+          '#theme_wrappers' => array('container'),
+          '#attributes' => array(
+            'class' => array('expanding-formatter-summary'),
+          ),
+          'value' => array(
+            '#markup' => expanding_formatter_text_summary($original, $instance['settings']['text_processing'] ? $item['format'] : NULL, $settings['trim_length']),
+          ),
+        );
+      }
+      if ($instance['settings']['text_processing']) {
+        $filters = filter_list_format($item['format']);
+      }
+      // Strip tags if HTML corrector filter is used.
+      if (!empty($filters['filter_htmlcorrector']->status)) {
+        $content = str_replace(strip_tags($element[$delta]['summary']['value']['#markup']), '', $original);
+      }
+      else {
+        $content = str_replace($element[$delta]['summary']['value']['#markup'], '', $original);
+      }
+      // Render expandable content.
+      if (!empty($content)) {
+        if ($settings['trim_ellipsis']) {
+          $element[$delta]['ellipsis'] = array(
+            '#theme' => 'expanding_formatter_ellipsis',
+            '#settings' => $settings,
+            '#attributes' => array(
+              'class' => array('expanding-formatter-ellipsis'),
             ),
           );
         }
-        // Content is short enough, render entire original output.
-        else {
-          $element[$delta] = array('#markup' => $original);
-        }
+        $element[$delta]['content'] = array(
+          '#theme_wrappers' => array('container'),
+          '#attributes' => array(
+            'class' => array('expanding-formatter-content'),
+          ),
+          'value' => array(
+            '#markup' => $content,
+          ),
+        );
+        $element[$delta]['trigger'] = $trigger;
       }
-      break;
+      // Content is short enough, render entire original output.
+      else {
+        $element[$delta] = array(
+          '#markup' => $original,
+        );
+      }
+    }
+    return $element;
   }
-  return $element;
+}
+
+/**
+ * Fix for text_summary().
+ * @see https://drupal.org/node/1235062
+ * @todo remove once committed to core.
+ *
+ * Generate a trimmed, formatted version of a text field value.
+ *
+ * If the end of the summary is not indicated using the <!--break--> delimiter
+ * then we generate the summary automatically, trying to end it at a sensible
+ * place such as the end of a paragraph, a line break, or the end of a
+ * sentence (in that order of preference).
+ *
+ * @param string $text
+ *   The content for which a summary will be generated.
+ * @param string $format
+ *   The format of the content.
+ *   If the PHP filter is present and $text contains PHP code, we do not
+ *   split it up to prevent parse errors.
+ *   If the line break filter is present then we treat newlines embedded in
+ *   $text as line breaks.
+ *   If the htmlcorrector filter is present, it will be run on the generated
+ *   summary (if different from the incoming $text).
+ * @param int $size
+ *   The desired character length of the summary. If omitted, the default
+ *   value will be used. Ignored if the special delimiter is present
+ *   in $text.
+ *
+ * @return string
+ *   The generated summary.
+ */
+function expanding_formatter_text_summary($text, $format = NULL, $size = NULL) {
+
+  if (!isset($size)) {
+    // What used to be called 'teaser' is now called 'summary', but
+    // the variable 'teaser_length' is preserved for backwards compatibility.
+    $size = variable_get('teaser_length', 600);
+  }
+
+  // Find where the delimiter is in the body.
+  $delimiter = strpos($text, '<!--break-->');
+
+  // If the size is zero, and there is no delimiter, the entire body is the
+  // summary.
+  if ($size == 0 && $delimiter === FALSE) {
+    return $text;
+  }
+
+  // If a valid delimiter has been specified, use it to chop off the summary.
+  if ($delimiter !== FALSE) {
+    return substr($text, 0, $delimiter);
+  }
+
+  // Retrieve the filters of the specified text format, if any.
+  if (isset($format)) {
+    $filters = filter_list_format($format);
+  }
+
+  // We check for the presence of the PHP evaluator filter in the current
+  // format. If the body contains PHP code, we do not split it up to prevent
+  // parse errors.
+  if (!empty($filters['php_code']->status) && strpos($text, '<?') !== FALSE) {
+    return $text;
+  }
+
+  // If we have a short body, the entire body is the summary.
+  if (drupal_strlen($text) <= $size) {
+    return $text;
+  }
+
+  // If the delimiter has not been specified, try to split at paragraph or
+  // sentence boundaries.
+
+  // The summary may not be longer than maximum length specified. Initial slice.
+  $summary = truncate_utf8($text, $size);
+
+  // Store the actual length of the UTF8 string -- which might not be the same
+  // as $size.
+  $max_rpos = strlen($summary);
+
+  // How much to cut off the end of the summary so that it doesn't end in the
+  // middle of a paragraph, sentence, or word.
+  // Initialize it to maximum in order to find the minimum.
+  $min_rpos = $max_rpos;
+
+  // Store the reverse of the summary. We use strpos on the reversed needle and
+  // haystack for speed and convenience.
+  $reversed = strrev($summary);
+
+  // Build an array of arrays of break points grouped by preference.
+  $break_points = array();
+
+  // A paragraph near the end of sliced summary is most preferable.
+  $break_points[] = array('</p>' => 0);
+
+  // If no complete paragraph then treat line breaks as paragraphs.
+  $line_breaks = array('<br />' => 6, '<br>' => 4);
+  // Newline only indicates a line break if line break converter
+  // filter is present.
+  if (!empty($filters['filter_autop']->status)) {
+    $line_breaks["\n"] = 1;
+  }
+  $break_points[] = $line_breaks;
+
+  // If the first paragraph is too long, split at the end of a sentence.
+  $break_points[] = array('. ' => 1, '! ' => 1, '? ' => 1, '。' => 0, '؟ ' => 1);
+
+  // Iterate over the groups of break points until a break point is found.
+  foreach ($break_points as $points) {
+    // Look for each break point, starting at the end of the summary.
+    foreach ($points as $point => $offset) {
+      // The summary is already reversed, but the break point isn't.
+      $rpos = strpos($reversed, strrev($point));
+      if ($rpos !== FALSE) {
+        $min_rpos = min($rpos + $offset, $min_rpos);
+      }
+    }
+
+    // If a break point was found in this group, slice and stop searching.
+    if ($min_rpos !== $max_rpos) {
+      // Don't slice with length 0. Length must be <0 to slice from RHS.
+      $summary = ($min_rpos === 0) ? $summary : substr($summary, 0, 0 - $min_rpos);
+      break;
+    }
+  }
+
+  // If the htmlcorrector filter is present, apply it to the generated summary.
+  if (!empty($filters['filter_htmlcorrector']->status)) {
+    $summary = _filter_htmlcorrector($summary);
+  }
+
+  return $summary;
 }
