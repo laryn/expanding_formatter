@@ -1,0 +1,85 @@
+@import "compass/css3";
+
+// Defaults
+.expanding-formatter {
+  overflow: hidden;
+
+  // Inline summary/expanded content.
+  &[data-inline="1"] {
+    p {
+      margin: 0 0 1.2em;
+    }
+    p:nth-child(2) {
+      margin-top: 1.2em;
+    }
+    p:first-child,
+    p:last-child {
+      display: inline;
+      margin-bottom: 0;
+    }
+    .expanding-formatter-summary,
+    .expanding-formatter-content {
+      display: inline;
+    }
+  }
+
+  // Margin for ellipsis.
+  .expanding-formatter-ellipsis {
+    margin-right: .25em;
+  }
+
+  // CSS3 Enabled
+  &[data-css3="1"] {
+    .trigger {
+      display: block;
+    }
+    // Collapsed
+    &.collapsed {
+      &.sliding .expanding-formatter-ellipsis,
+      &[data-effect="slide"]:not(.sliding) .expanding-formatter-content {
+        display: none;
+      }
+      .trigger {
+        display: inline;
+      }
+    }
+
+    // Expanded
+    &.expanded {
+      .expanding-formatter-ellipsis {
+        display: none;
+      }
+    }
+
+    // Slide effect
+    &[data-effect="slide"] {
+      @include transition(height 500ms ease);
+    }
+    // Fade effect
+    &[data-effect="fade"] {
+      .expanding-formatter-content {
+        @include transition(opacity 100ms ease);
+        @include opacity(0);
+        overflow: hidden;
+      }
+      &.collapsed {
+        .expanding-formatter-content {
+          display: inline-block;
+          height: 0;
+          width: 0;
+        }
+        &.fading .expanding-formatter-content {
+          @include opacity(0);
+        }
+      }
+      &.expanded {
+        .expanding-formatter-content {
+          @include opacity(1);
+        }
+        &.fading .expanding-formatter-content {
+          @include opacity(0);
+        }
+      }
+    }
+  }
+}

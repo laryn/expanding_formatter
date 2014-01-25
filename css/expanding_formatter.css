@@ -1,0 +1,65 @@
+.expanding-formatter {
+  overflow: hidden;
+}
+.expanding-formatter[data-inline="1"] p {
+  margin: 0 0 1.2em;
+}
+.expanding-formatter[data-inline="1"] p:nth-child(2) {
+  margin-top: 1.2em;
+}
+.expanding-formatter[data-inline="1"] p:first-child,
+.expanding-formatter[data-inline="1"] p:last-child {
+  display: inline;
+  margin-bottom: 0;
+}
+.expanding-formatter[data-inline="1"] .expanding-formatter-summary,
+.expanding-formatter[data-inline="1"] .expanding-formatter-content {
+  display: inline;
+}
+.expanding-formatter .expanding-formatter-ellipsis {
+  margin-right: .25em;
+}
+.expanding-formatter[data-css3="1"] .trigger {
+  display: block;
+}
+.expanding-formatter[data-css3="1"].collapsed.sliding .expanding-formatter-ellipsis, .expanding-formatter[data-css3="1"].collapsed[data-effect="slide"]:not(.sliding) .expanding-formatter-content {
+  display: none;
+}
+.expanding-formatter[data-css3="1"].collapsed .trigger {
+  display: inline;
+}
+.expanding-formatter[data-css3="1"].expanded .expanding-formatter-ellipsis {
+  display: none;
+}
+.expanding-formatter[data-css3="1"][data-effect="slide"] {
+  -webkit-transition: height 500ms ease;
+  -moz-transition: height 500ms ease;
+  -o-transition: height 500ms ease;
+  transition: height 500ms ease;
+}
+.expanding-formatter[data-css3="1"][data-effect="fade"] .expanding-formatter-content {
+  -webkit-transition: opacity 100ms ease;
+  -moz-transition: opacity 100ms ease;
+  -o-transition: opacity 100ms ease;
+  transition: opacity 100ms ease;
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+  overflow: hidden;
+}
+.expanding-formatter[data-css3="1"][data-effect="fade"].collapsed .expanding-formatter-content {
+  display: inline-block;
+  height: 0;
+  width: 0;
+}
+.expanding-formatter[data-css3="1"][data-effect="fade"].collapsed.fading .expanding-formatter-content {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+}
+.expanding-formatter[data-css3="1"][data-effect="fade"].expanded .expanding-formatter-content {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  opacity: 1;
+}
+.expanding-formatter[data-css3="1"][data-effect="fade"].expanded.fading .expanding-formatter-content {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+}
