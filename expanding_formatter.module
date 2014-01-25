@@ -8,37 +8,37 @@
  */
 
 /**
+ * Provide default settings for the formatter.
+ */
+function expanding_formatter_default_settings() {
+  return array(
+    'effect' => 'slide',
+    'expand_label' => t('expand'),
+    'collapse_label' => t('collapse'),
+    'trigger_css' => '',
+    'trim_length' => 200,
+    'trim_ellipsis' => TRUE,
+  );
+}
+
+/**
  * Implements hook_field_formatter_info().
  */
 function expanding_formatter_field_formatter_info() {
+  $settings = expanding_formatter_default_settings();
   return array(
     'expanding_formatter_text_trimmed' => array(
       'label' => t('Trimmed (expandable)'),
       'field types' => array('text', 'text_long', 'text_with_summary'),
-      'settings' => array(
-        'effect' => 'slide',
-        'expand_label' => t('expand'),
-        'collapse_label' => t('collapse'),
-        'trigger_css' => '',
-        'trim_length' => 200,
-        'trim_ellipsis' => TRUE,
-      ),
+      'settings' => $settings,
     ),
     'expanding_formatter_text_summary_or_trimmed' => array(
       'label' => t('Summary or trimmed (expandable)'),
       'field types' => array('text_with_summary'),
-      'settings' => array(
-        'effect' => 'slide',
-        'expand_label' => t('expand'),
-        'collapse_label' => t('collapse'),
-        'trigger_css' => '',
-        'trim_length' => 200,
-        'trim_ellipsis' => TRUE,
-      ),
+      'settings' => $settings,
     ),
   );
 }
-
 
 /**
  * Implements hook_field_formatter_info().
@@ -51,7 +51,7 @@ function expanding_formatter_field_formatter_info_alter(&$info) {
   unset($info['expanding_formatter_text_trimmed']);
   $summary = $info['expanding_formatter_text_summary_or_trimmed'];
   unset($info['expanding_formatter_text_summary_or_trimmed']);
-  // Find the text formmatters.
+  // Find the text formatters.
   $formatters = array();
   foreach ($info as $name => $data) {
     $formatters[$name] = $data;
