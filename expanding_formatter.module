@@ -15,7 +15,8 @@ function expanding_formatter_field_formatter_info() {
      'field types' => array('text', 'text_long', 'text_with_summary'),
      'settings' => array(
        'effect' => 'slide',
-       'trigger_label' => t('expand'),
+       'expand_label' => t('expand'),
+       'collapse_label' => t('collapse'),
        'trigger_css' => '',
        'trim_length' => 200,
        'trim_ellipsis' => TRUE,
@@ -26,7 +27,8 @@ function expanding_formatter_field_formatter_info() {
      'field types' => array('text_with_summary'),
      'settings' => array(
        'effect' => 'slide',
-       'trigger_label' => t('expand'),
+       'expand_label' => t('expand'),
+       'collapse_label' => t('collapse'),
        'trigger_css' => '',
        'trim_length' => 200,
        'trim_ellipsis' => TRUE,
@@ -87,13 +89,20 @@ function expanding_formatter_field_formatter_info_alter(&$info) {
        ),
        '#required' => TRUE,
      );
-     $element['trigger_label'] = array(
-       '#title' => t('Trigger label'),
+     $element['expand_label'] = array(
+       '#title' => t('Expand label'),
        '#type' => 'textfield',
        '#size' => 10,
-       '#default_value' => $settings['trigger_label'],
+       '#default_value' => $settings['expand_label'],
        '#required' => TRUE,
      );
+     $element['collapse_label'] = array(
+        '#title' => t('Collapse label'),
+        '#type' => 'textfield',
+        '#size' => 10,
+        '#default_value' => $settings['collapse_label'],
+        '#required' => FALSE,
+       );
      $element['trigger_css'] = array(
        '#title' => t('Trigger CSS'),
        '#description' => t('Provide additional CSS classes separated by spaces.'),
@@ -133,7 +142,7 @@ function expanding_formatter_field_formatter_info_alter(&$info) {
      if (isset($effect)) {
        $summary[] = t('Effect') . ': ' . $effect;
      }
-     $summary[] = t('Trigger label') . ': ' . $settings['trigger_label'];
+     $summary[] = t('Expand label') . ': ' . $settings['expand_label'];
      if (!empty($settings['trigger_css'])) {
        $summary[] = t('Trigger css') . ': ' . $settings['trigger_css'];
      }
@@ -160,14 +169,15 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
         // Render expandable content
         if (!empty($more)) {
           if ($display['settings']['trim_ellipsis']) {
-            $summary .= '<span class="trim-ellipsis">... </span>';
+            $summary .= '<span class="trim-ellipsis">… </span>';
           }
           $classes = '';
           if (!empty($display['settings']['trigger_css'])) {
             $classes = ' ' . $display['settings']['trigger_css'];
           }
-          $summary .= '<a class="trigger' . $classes . '" href="javascript:void(0)">' . $display['settings']['trigger_label'] . '</a>';
-          $summary .= '<div class="content">' . $more . '</div>';
+          $summary .= '<a class="trigger expand' . $classes . '" href="javascript:void(0)">' . $display['settings']['expand_label'] . '</a>';
+          $summary .= '<div class="content">' . $more;
+          $summary .= '<a class="trigger collapse' . $classes . '" href="javascript:void(0)">' . $display['settings']['collapse_label'] . '</a></div>';
           $element[$delta] = array(
             '#prefix' => '<div class="expanding-formatter ' . $display['settings']['effect'] . '">',
             '#suffix' => '</div>',
@@ -198,14 +208,15 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
         // Render expandable content
         if (!empty($more)) {
           if ($display['settings']['trim_ellipsis']) {
-            $summary .= '<span class="trim-ellipsis">... </span>';
+            $summary .= '<span class="trim-ellipsis">… </span>';
           }
           $classes = '';
           if (!empty($display['settings']['trigger_css'])) {
             $classes = ' ' . $display['settings']['trigger_css'];
           }
-          $summary .= '<a class="trigger' . $classes . '" href="javascript:void(0)">' . $display['settings']['trigger_label'] . '</a>';
-          $summary .= '<div class="content">' . $more . '</div>';
+          $summary .= '<a class="trigger expand' . $classes . '" href="javascript:void(0)">' . $display['settings']['expand_label'] . '</a>';
+          $summary .= '<div class="content">' . $more;
+          $summary .= '<a class="trigger collapse' . $classes . '" href="javascript:void(0)">' . $display['settings']['collapse_label'] . '</a></div>';
           $element[$delta] = array(
             '#prefix' => '<div class="expanding-formatter ' . $display['settings']['effect'] . '">',
             '#suffix' => '</div>',
