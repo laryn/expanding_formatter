@@ -41,15 +41,15 @@ function theme_expanding_formatter_ellipsis($variables) {
  */
 function expanding_formatter_default_settings() {
   return array(
-    'effect' => 'slide',
-    'expand_label' => t('Expand'),
-    'collapse_label' => t('Collapse'),
-    'trigger_css' => 'button',
     'trim_length' => 200,
     'trim_ellipsis' => TRUE,
+    'effect' => 'slide',
+    'trigger_expanded_label' => t('Expand'),
+    'trigger_collapsed_label' => '',
+    'trigger_classes' => 'button',
+    'inline' => TRUE,
     'css3' => TRUE,
     'js_duration' => 500,
-    'inline' => TRUE,
   );
 }
 
@@ -116,9 +116,22 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
   $settings += expanding_formatter_default_settings();
   $element = array();
   if (strpos($display['type'], '_trimmed') !== FALSE) {
+    $element['trim_length'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Trim length'),
+      '#size' => 10,
+      '#default_value' => $settings['trim_length'],
+      '#element_validate' => array('element_validate_integer_positive'),
+      '#required' => TRUE,
+    );
+    $element['trim_ellipsis'] = array(
+      '#type' => 'checkbox',
+      '#title' => $display['type'] === 'expanding_formatter_text_summary_or_trimmed' ? t('Append ellipsis on summary or trimmed content') : t('Append ellipsis on trimmed content'),
+      '#default_value' => $settings['trim_ellipsis'],
+    );
     $element['effect'] = array(
-      '#title' => t('Effect'),
       '#type' => 'select',
+      '#title' => t('Effect'),
       '#default_value' => $settings['effect'],
       '#options' => array(
         'fade' => t('Fade'),
@@ -126,47 +139,32 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
       ),
       '#required' => TRUE,
     );
-    $element['expand_label'] = array(
-      '#title' => t('Expand label'),
+    $element['trigger_expanded_label'] = array(
       '#type' => 'textfield',
-      '#size' => 10,
-      '#default_value' => $settings['expand_label'],
+      '#title' => t('Trigger expanded label'),
+      '#default_value' => $settings['trigger_expanded_label'],
       '#required' => TRUE,
     );
-    $element['collapse_label'] = array(
-      '#title' => t('Collapse label'),
+    $element['trigger_collapsed_label'] = array(
       '#type' => 'textfield',
-      '#size' => 10,
-      '#default_value' => $settings['collapse_label'],
-      '#required' => FALSE,
+      '#title' => t('Trigger collapsed label'),
+      '#description' => t('Enter text to make the content collapsible. If empty, content will only expand.'),
+      '#default_value' => $settings['trigger_collapsed_label'],
     );
-    $element['trigger_css'] = array(
-      '#title' => t('Trigger CSS'),
+    $element['trigger_classes'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Trigger classes'),
       '#description' => t('Provide additional CSS classes separated by spaces.'),
-      '#type' => 'textfield',
-      '#size' => 30,
-      '#default_value' => $settings['trigger_css'],
-    );
-    $element['trim_length'] = array(
-      '#title' => t('Trim length'),
-      '#type' => 'textfield',
-      '#size' => 10,
-      '#default_value' => $settings['trim_length'],
-      '#element_validate' => array('element_validate_integer_positive'),
-      '#required' => TRUE,
-    );
-    $element['trim_ellipsis'] = array(
-      '#title' => t('Used ellipsis on trimmed content'),
-      '#type' => 'checkbox',
-      '#default_value' => $settings['trim_ellipsis'],
+      '#default_value' => $settings['trigger_classes'],
     );
     $element['inline'] = array(
-      '#title' => t('Inline joining of summary/content'),
       '#type' => 'checkbox',
+      '#title' => t('Display elements as inline'),
+      '#description' => t('If enabled, all elements inside the formatted display will appear as inline. Disable if needed or desired.'),
       '#default_value' => $settings['inline'],
     );
     $element['css3'] = array(
-      '#title' => t('Use CSS3 !transitions for effects', array(
+      '#title' => t('Use CSS3 !transitions for animation effects', array(
         '!transitions' => l(t('Transitions'), 'http://www.w3.org/TR/css3-transitions/'),
       )),
       '#type' => 'checkbox',
@@ -177,6 +175,7 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
       '#title' => t('jQuery animation duration'),
       '#type' => 'textfield',
       '#description' => t('Milliseconds'),
+      '#size' => 5,
       '#default_value' => $settings['js_duration'],
       '#states' => array(
         'invisible' => array(
@@ -196,26 +195,27 @@ function expanding_formatter_field_formatter_settings_summary($field, $instance,
   $settings = $display['settings'];
   $settings += expanding_formatter_default_settings();
   $summary = array();
-  switch ($settings['effect']) {
-    case 'fade':
-      $effect = t('Fade');
-      break;
-
-    case 'slide':
-      $effect = t('Slide');
-      break;
-  }
   if (strpos($display['type'], '_trimmed') !== FALSE) {
-    if (isset($effect)) {
-      $summary[] = t('Effect') . ': ' . $effect;
+    $summary[t('Trim length')] = $settings['trim_length'] . ($settings['trim_ellipsis'] ? ' (' . t('with ellipsis') . ')' : '');
+    $summary[t('Effect')] = $settings['effect'];
+    if (!empty($settings['trigger_collapsed_label'])) {
+      $summary[t('Trigger expanded label')] = $settings['trigger_expanded_label'];
     }
-    $summary[] = t('Expand label') . ': ' . $settings['expand_label'];
-    if (!empty($settings['trigger_css'])) {
-      $summary[] = t('Trigger css') . ': ' . $settings['trigger_css'];
+    else {
+      $summary[t('Trigger label')] = $settings['trigger_expanded_label'];
     }
-    $summary[] = t('Trim length') . ': ' . $settings['trim_length'] . ($settings['trim_ellipsis'] ? ' (with ellipsis)' : '');
+    if (!empty($settings['trigger_collapsed_label'])) {
+      $summary[t('Trigger collapsed label')] = $settings['trigger_collapsed_label'];
+    }
+    if (!empty($settings['trigger_classes'])) {
+      $summary[t('Trigger classes')] = $settings['trigger_classes'];
+    }
   }
-  return implode('<br />', $summary);
+  $output = '';
+  foreach ($summary as $label => $value) {
+    $output .= '<strong>' . $label . '</strong>: ' . check_plain($value) . '<br />';
+  }
+  return $output;
 }
 
 
@@ -239,8 +239,8 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
 
     // Create a link for the toggle.
     $trigger_classes = array();
-    if (!empty($settings['trigger_css'])) {
-      $trigger_classes = array_unique(array_merge($trigger_classes, explode(' ', $settings['trigger_css'])));
+    if (!empty($settings['trigger_classes'])) {
+      $trigger_classes = array_unique(array_merge($trigger_classes, explode(' ', $settings['trigger_classes'])));
     }
     $trigger = array(
       '#theme_wrappers' => array('container'),
@@ -251,7 +251,7 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
       ),
       'link' => array(
         '#theme' => 'link',
-        '#text' => $settings['expand_label'],
+        '#text' => $settings['trigger_expanded_label'],
         '#path' => 'javascript:void(0)',
         '#options' => array(
           'external' => TRUE,
@@ -264,25 +264,24 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
     );
 
     // Iterate through each item in the field, for unlimited values.
+    $attributes = array();
+    $attributes['class'] = array('expanding-formatter');
+    $attributes['data-css3'] = $settings['css3'];
+    $attributes['data-effect'] = $settings['effect'];
+    $attributes['data-inline'] = $settings['inline'];
+    if (!empty($settings['trigger_collapsed_label'])) {
+      $attributes['data-expanded-label'] = $settings['trigger_expanded_label'];
+      $attributes['data-collapsed-label'] = $settings['trigger_collapsed_label'];
+    }
+    if (empty($settings['css3'])) {
+      $attributes['data-js-duration'] = $settings['js_duration'];
+    }
     foreach ($items as $delta => $item) {
       $element[$delta] = array(
         '#theme_wrappers' => array('container'),
         '#expanding_formatter' => TRUE,
-        '#attributes' => array(
-          'class' => array(
-            'expanding-formatter',
-          ),
-          'data-css3' => $settings['css3'],
-          'data-effect' => $settings['effect'],
-          'data-inline' => $settings['inline'],
-          'data-expand-label' => $settings['expand_label'],
-          'data-collapse-label' => $settings['collapse_label'],
-          'data-js-duration' => $settings['js_duration'],
-        ),
+        '#attributes' => $attributes,
       );
-      if ($settings['css3']) {
-        unset($element[$delta]['#attributes']['data-js-duration']);
-      }
       $original = _text_sanitize($instance, $langcode, $item, 'value');
       if ($display['type'] === 'expanding_formatter_text_summary_or_trimmed' && !empty($item['summary'])) {
         $element[$delta]['summary'] = array(

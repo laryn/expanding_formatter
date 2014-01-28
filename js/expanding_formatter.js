@@ -28,7 +28,7 @@
               .addClass('collapsed')
               .height(collapsedHeight)
               .trigger('collapsed', [data]);
-            $trigger.text(data.expandLabel);
+            $trigger.text(data.expandedLabel);
           }
           // CSS3.
           if (data.css3) {
@@ -58,7 +58,12 @@
                 .addClass('expanded')
                 .height(expandedHeight)
                 .trigger('expanded', [data]);
-              $trigger.text(data.collapseLabel);
+              if (data.collapsedLabel) {
+                $trigger.text(data.collapsedLabel);
+              }
+              else {
+                $trigger.hide();
+              }
             }
           }
           // jQuery animation.
@@ -68,7 +73,7 @@
                 $formatter
                   .removeClass('expanded')
                   .addClass('collapsed');
-                $trigger.text(data.expandLabel);
+                $trigger.text(data.expandedLabel);
                 $formatter.animate({
                   height: collapsedHeight
                 }, data.jsDuration, function () {
@@ -84,7 +89,12 @@
                   .addClass('expanded')
                   .find('.expanding-formatter-ellipsis').hide();
                 $content.show();
-                $trigger.text(data.collapseLabel);
+                if (data.collapsedLabel) {
+                  $trigger.text(data.collapsedLabel);
+                }
+                else {
+                  $trigger.hide();
+                }
                 $formatter.animate({
                   height: expandedHeight
                 }, data.jsDuration, function () {
@@ -115,7 +125,7 @@
                       .height(collapsedHeight)
                       .trigger('collapsed', [data])
                       .find('.expanding-formatter-ellipsis').fadeIn(data.jsDuration);
-                    $trigger.text(data.expandLabel).fadeIn(data.jsDuration);
+                    $trigger.text(data.expandedLabel).fadeIn(data.jsDuration);
                   });
               }
               else {
@@ -124,10 +134,12 @@
                   .addClass('expanded')
                   .height(expandedHeight)
                   .find('.expanding-formatter-ellipsis').hide();
-                $trigger
-                  .hide()
-                  .text(data.collapseLabel)
-                  .fadeIn(data.jsDuration);
+                $trigger.hide();
+                if (data.collapsedLabel) {
+                  $trigger
+                    .text(data.collapsedLabel)
+                    .fadeIn(data.jsDuration);
+                }
                 $content
                   .removeAttr('style')
                   .css({
