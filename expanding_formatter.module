@@ -42,9 +42,9 @@ function theme_expanding_formatter_ellipsis($variables) {
 function expanding_formatter_default_settings() {
   return array(
     'effect' => 'slide',
-    'expand_label' => t('expand'),
-    'collapse_label' => t('collapse'),
-    'trigger_css' => '',
+    'expand_label' => t('Expand'),
+    'collapse_label' => t('Collapse'),
+    'trigger_css' => 'button',
     'trim_length' => 200,
     'trim_ellipsis' => TRUE,
     'css3' => TRUE,
