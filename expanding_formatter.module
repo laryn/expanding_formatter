@@ -48,6 +48,7 @@ function expanding_formatter_default_settings() {
     'trim_length' => 200,
     'trim_ellipsis' => TRUE,
     'css3' => TRUE,
+    'js_duration' => 500,
     'inline' => TRUE,
   );
 }
@@ -159,17 +160,29 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
       '#type' => 'checkbox',
       '#default_value' => $settings['trim_ellipsis'],
     );
+    $element['inline'] = array(
+      '#title' => t('Inline joining of summary/content'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['inline'],
+    );
     $element['css3'] = array(
       '#title' => t('Use CSS3 !transitions for effects', array(
         '!transitions' => l(t('Transitions'), 'http://www.w3.org/TR/css3-transitions/'),
       )),
       '#type' => 'checkbox',
+      '#description' => t('If you require support for IE 7/8, this option will need to be disabled to fallback to jQuery animations.'),
       '#default_value' => $settings['css3'],
     );
-    $element['inline'] = array(
-      '#title' => t('Inline joining of summary/content'),
-      '#type' => 'checkbox',
-      '#default_value' => $settings['inline'],
+    $element['js_duration'] = array(
+      '#title' => t('jQuery animation duration'),
+      '#type' => 'textfield',
+      '#description' => t('Milliseconds'),
+      '#default_value' => $settings['js_duration'],
+      '#states' => array(
+        'invisible' => array(
+          ':input[name*="css3"]' => array('checked' => TRUE),
+        ),
+      ),
     );
   }
   return $element;
@@ -264,8 +277,12 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
           'data-inline' => $settings['inline'],
           'data-expand-label' => $settings['expand_label'],
           'data-collapse-label' => $settings['collapse_label'],
+          'data-js-duration' => $settings['js_duration'],
         ),
       );
+      if ($settings['css3']) {
+        unset($element[$delta]['#attributes']['data-js-duration']);
+      }
       $original = _text_sanitize($instance, $langcode, $item, 'value');
       if ($display['type'] === 'expanding_formatter_text_summary_or_trimmed' && !empty($item['summary'])) {
         $element[$delta]['summary'] = array(

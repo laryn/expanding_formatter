@@ -71,7 +71,7 @@
                 $trigger.text(data.expandLabel);
                 $formatter.animate({
                   height: collapsedHeight
-                }, 500, function () {
+                }, data.jsDuration, function () {
                   $content.hide();
                   $formatter
                     .trigger('collapsed', [data])
@@ -87,14 +87,14 @@
                 $trigger.text(data.collapseLabel);
                 $formatter.animate({
                   height: expandedHeight
-                }, 500, function () {
+                }, data.jsDuration, function () {
                   $formatter.trigger('expanded', [data]);
                 });
               }
             }
             else if (data.effect === 'fade') {
               if ($formatter.hasClass('expanded')) {
-                $trigger.fadeOut(500);
+                $trigger.fadeOut(data.jsDuration);
                 $content
                   .css({
                     display: 'inline',
@@ -102,7 +102,7 @@
                   })
                   .animate({
                     opacity: 0
-                  }, 500, function () {
+                  }, data.jsDuration, function () {
                     $content.css({
                       display: data.inline ? 'inline-block' : 'block',
                       height: 0,
@@ -114,8 +114,8 @@
                       .addClass('collapsed')
                       .height(collapsedHeight)
                       .trigger('collapsed', [data])
-                      .find('.expanding-formatter-ellipsis').show();
-                    $trigger.text(data.expandLabel).fadeIn();
+                      .find('.expanding-formatter-ellipsis').fadeIn(data.jsDuration);
+                    $trigger.text(data.expandLabel).fadeIn(data.jsDuration);
                   });
               }
               else {
@@ -127,7 +127,7 @@
                 $trigger
                   .hide()
                   .text(data.collapseLabel)
-                  .fadeIn(500);
+                  .fadeIn(data.jsDuration);
                 $content
                   .removeAttr('style')
                   .css({
@@ -136,7 +136,7 @@
                   })
                   .animate({
                     opacity: 1
-                  }, 500, function () {
+                  }, data.jsDuration, function () {
                     $formatter.trigger('expanded', [data]);
                   });
               }
