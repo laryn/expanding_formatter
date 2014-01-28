@@ -18,43 +18,80 @@
         $content.removeAttr('style');
         var $trigger = $formatter.find('.expanding-formatter-trigger a');
         var data = $formatter.data();
+        if (!data.css3) {
+          $content.hide();
+        }
         $trigger.bind('click', function () {
-          if (data.effect === 'slide') {
-            $formatter.addClass('sliding');
-            setTimeout(function () {
-              $formatter.removeClass('sliding');
-            }, 500);
-          }
-          else if (data.effect === 'fade') {
-            $formatter.addClass('fading');
-            setTimeout(function () {
-              $formatter.removeClass('fading');
-            }, 500);
-          }
-          function collapse () {
-            $formatter
-              .removeClass('expanded')
-              .addClass('collapsed')
-              .height(collapsedHeight);
-            $trigger.text(data.expandLabel);
-          }
-          function expand () {
-            $formatter
-              .removeClass('collapsed')
-              .addClass('expanded')
-              .height(expandedHeight);
-            $trigger.text(data.collapseLabel);
-          }
-          if ($formatter.hasClass('expanded')) {
-            if (data.effect === 'fade') {
-              setTimeout(collapse, 500);
+          // CSS3.
+          if (data.css3) {
+            function collapse () {
+              $formatter
+                .removeClass('expanded')
+                .addClass('collapsed')
+                .height(collapsedHeight);
+              $trigger.text(data.expandLabel);
+            }
+            function expand () {
+              $formatter
+                .removeClass('collapsed')
+                .addClass('expanded')
+                .height(expandedHeight);
+              $trigger.text(data.collapseLabel);
+            }
+            if (data.effect === 'slide') {
+              $formatter.addClass('sliding');
+              setTimeout(function () {
+                $formatter.removeClass('sliding');
+              }, 500);
+            }
+            else if (data.effect === 'fade') {
+              $formatter.addClass('fading');
+              setTimeout(function () {
+                $formatter.removeClass('fading');
+              }, 500);
+            }
+            if ($formatter.hasClass('expanded')) {
+              if (data.effect === 'fade') {
+                setTimeout(collapse, 500);
+              }
+              else {
+                collapse();
+              }
             }
             else {
-              collapse();
+              expand();
             }
           }
+          // jQuery animation.
           else {
-            expand();
+            if (data.effect === 'slide') {
+              if ($formatter.hasClass('expanded')) {
+                $formatter
+                  .removeClass('expanded')
+                  .addClass('collapsed');
+                $trigger.text(data.expandLabel);
+                $formatter.animate({
+                  height: collapsedHeight
+                }, 500, function () {
+                  $content.hide();
+                  $formatter.find('.expanding-formatter-ellipsis').show();
+                });
+              }
+              else {
+                $formatter
+                  .removeClass('collapsed')
+                  .addClass('expanded')
+                  .find('.expanding-formatter-ellipsis').hide();
+                $content.show();
+                $trigger.text(data.collapseLabel);
+                $formatter.animate({
+                  height: expandedHeight
+                }, 500);
+              }
+            }
+            else if (data.effect === 'fade') {
+
+            }
           }
         });
       });
