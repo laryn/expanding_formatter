@@ -26,7 +26,8 @@
             $formatter
               .removeClass('expanded')
               .addClass('collapsed')
-              .height(collapsedHeight);
+              .height(collapsedHeight)
+              .trigger('collapsed', [data]);
             $trigger.text(data.expandLabel);
           }
           // CSS3.
@@ -55,7 +56,8 @@
               $formatter
                 .removeClass('collapsed')
                 .addClass('expanded')
-                .height(expandedHeight);
+                .height(expandedHeight)
+                .trigger('expanded', [data]);
               $trigger.text(data.collapseLabel);
             }
           }
@@ -71,7 +73,9 @@
                   height: collapsedHeight
                 }, 500, function () {
                   $content.hide();
-                  $formatter.find('.expanding-formatter-ellipsis').show();
+                  $formatter
+                    .trigger('collapsed', [data])
+                    .find('.expanding-formatter-ellipsis').show();
                 });
               }
               else {
@@ -83,7 +87,9 @@
                 $trigger.text(data.collapseLabel);
                 $formatter.animate({
                   height: expandedHeight
-                }, 500);
+                }, 500, function () {
+                  $formatter.trigger('expanded', [data]);
+                });
               }
             }
             else if (data.effect === 'fade') {
@@ -107,6 +113,7 @@
                       .removeClass('expanded')
                       .addClass('collapsed')
                       .height(collapsedHeight)
+                      .trigger('collapsed', [data])
                       .find('.expanding-formatter-ellipsis').show();
                     $trigger.text(data.expandLabel).fadeIn();
                   });
@@ -129,7 +136,9 @@
                   })
                   .animate({
                     opacity: 1
-                  }, 500);
+                  }, 500, function () {
+                    $formatter.trigger('expanded', [data]);
+                  });
               }
             }
           }
