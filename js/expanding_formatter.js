@@ -22,22 +22,15 @@
           $content.hide();
         }
         $trigger.bind('click', function () {
+          function css3Collapse () {
+            $formatter
+              .removeClass('expanded')
+              .addClass('collapsed')
+              .height(collapsedHeight);
+            $trigger.text(data.expandLabel);
+          }
           // CSS3.
           if (data.css3) {
-            function collapse () {
-              $formatter
-                .removeClass('expanded')
-                .addClass('collapsed')
-                .height(collapsedHeight);
-              $trigger.text(data.expandLabel);
-            }
-            function expand () {
-              $formatter
-                .removeClass('collapsed')
-                .addClass('expanded')
-                .height(expandedHeight);
-              $trigger.text(data.collapseLabel);
-            }
             if (data.effect === 'slide') {
               $formatter.addClass('sliding');
               setTimeout(function () {
@@ -52,14 +45,18 @@
             }
             if ($formatter.hasClass('expanded')) {
               if (data.effect === 'fade') {
-                setTimeout(collapse, 500);
+                setTimeout(css3Collapse, 500);
               }
               else {
-                collapse();
+                css3Collapse();
               }
             }
             else {
-              expand();
+              $formatter
+                .removeClass('collapsed')
+                .addClass('expanded')
+                .height(expandedHeight);
+              $trigger.text(data.collapseLabel);
             }
           }
           // jQuery animation.
@@ -90,7 +87,50 @@
               }
             }
             else if (data.effect === 'fade') {
-
+              if ($formatter.hasClass('expanded')) {
+                $trigger.fadeOut(500);
+                $content
+                  .css({
+                    display: 'inline',
+                    opacity: 1
+                  })
+                  .animate({
+                    opacity: 0
+                  }, 500, function () {
+                    $content.css({
+                      display: data.inline ? 'inline-block' : 'block',
+                      height: 0,
+                      overflow: 'hidden',
+                      width: 0
+                    });
+                    $formatter
+                      .removeClass('expanded')
+                      .addClass('collapsed')
+                      .height(collapsedHeight)
+                      .find('.expanding-formatter-ellipsis').show();
+                    $trigger.text(data.expandLabel).fadeIn();
+                  });
+              }
+              else {
+                $formatter
+                  .removeClass('collapsed')
+                  .addClass('expanded')
+                  .height(expandedHeight)
+                  .find('.expanding-formatter-ellipsis').hide();
+                $trigger
+                  .hide()
+                  .text(data.collapseLabel)
+                  .fadeIn(500);
+                $content
+                  .removeAttr('style')
+                  .css({
+                    display: data.inline ? 'inline' : 'block',
+                    opacity: 0
+                  })
+                  .animate({
+                    opacity: 1
+                  }, 500);
+              }
             }
           }
         });
