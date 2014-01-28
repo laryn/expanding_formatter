@@ -16,11 +16,14 @@
 .expanding-formatter[data-inline="1"] .expanding-formatter-content {
   display: inline;
 }
+.expanding-formatter[data-inline="1"] .expanding-formatter-trigger {
+  margin-bottom: 5px;
+}
+.expanding-formatter[data-inline="1"].collapsed .expanding-formatter-trigger {
+  display: inline-block;
+}
 .expanding-formatter .expanding-formatter-ellipsis {
   margin-right: .25em;
-}
-.expanding-formatter[data-css3="1"] .trigger {
-  display: block;
 }
 .expanding-formatter[data-css3="1"].collapsed.sliding .expanding-formatter-ellipsis, .expanding-formatter[data-css3="1"].collapsed[data-effect="slide"]:not(.sliding) .expanding-formatter-content {
   display: none;

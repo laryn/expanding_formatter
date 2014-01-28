@@ -225,19 +225,27 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
     );
 
     // Create a link for the toggle.
-    $trigger_classes = array('trigger');
+    $trigger_classes = array();
     if (!empty($settings['trigger_css'])) {
       $trigger_classes = array_unique(array_merge($trigger_classes, explode(' ', $settings['trigger_css'])));
     }
     $trigger = array(
-      '#theme' => 'link',
-      '#text' => $settings['expand_label'],
-      '#path' => 'javascript:void(0)',
-      '#options' => array(
-        'external' => TRUE,
-        'html' => FALSE,
-        'attributes' => array(
-          'class' => $trigger_classes,
+      '#theme_wrappers' => array('container'),
+      '#attributes' => array(
+        'class' => array(
+          'expanding-formatter-trigger',
+        ),
+      ),
+      'link' => array(
+        '#theme' => 'link',
+        '#text' => $settings['expand_label'],
+        '#path' => 'javascript:void(0)',
+        '#options' => array(
+          'external' => TRUE,
+          'html' => FALSE,
+          'attributes' => array(
+            'class' => $trigger_classes,
+          ),
         ),
       ),
     );

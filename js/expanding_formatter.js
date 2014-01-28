@@ -16,7 +16,7 @@
         var collapsedHeight = $formatter.outerHeight(false);
         $formatter.addClass('collapsed').height(collapsedHeight);
         $content.removeAttr('style');
-        var $trigger = $formatter.find('a.trigger');
+        var $trigger = $formatter.find('.expanding-formatter-trigger a');
         var data = $formatter.data();
         $trigger.bind('click', function () {
           if (data.effect === 'slide') {

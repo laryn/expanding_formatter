@@ -21,6 +21,12 @@
     .expanding-formatter-content {
       display: inline;
     }
+    .expanding-formatter-trigger {
+      margin-bottom: 5px;
+    }
+    &.collapsed .expanding-formatter-trigger {
+      display: inline-block;
+    }
   }
 
   // Margin for ellipsis.
@@ -30,9 +36,6 @@
 
   // CSS3 Enabled
   &[data-css3="1"] {
-    .trigger {
-      display: block;
-    }
     // Collapsed
     &.collapsed {
       &.sliding .expanding-formatter-ellipsis,
