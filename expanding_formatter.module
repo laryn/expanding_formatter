@@ -263,7 +263,7 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
         $element[$delta]['summary'] = array(
           '#theme_wrappers' => array('container'),
           '#attributes' => array(
-            'class' => array('expanded-formatter-summary'),
+            'class' => array('expanding-formatter-summary'),
           ),
           'value' => array(
             '#markup' => _text_sanitize($instance, $langcode, $item, 'summary'),
