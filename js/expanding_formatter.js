@@ -208,6 +208,7 @@
       }
       // Expand.
       else {
+        Drupal.expandingFormatterEffects.expandCss(data);
       }
     }
   };
