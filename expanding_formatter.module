@@ -139,6 +139,19 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
         'slide' => t('Slide'),
       ),
     );
+    $element['css3'] = array(
+      '#title' => t('Use CSS3 !transitions for animation effects', array(
+        '!transitions' => l(t('Transitions'), 'http://www.w3.org/TR/css3-transitions/'),
+      )),
+      '#type' => 'checkbox',
+      '#description' => t('If you require support for IE 7/8, this option will need to be disabled to fallback to jQuery animations.'),
+      '#default_value' => $settings['css3'],
+      '#states' => array(
+        'invisible' => array(
+          ':input[name*="effect"]' => array('value' => ''),
+        ),
+      ),
+    );
     $element['trigger_expanded_label'] = array(
       '#type' => 'textfield',
       '#title' => t('Trigger expanded label'),
@@ -162,14 +175,6 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
       '#title' => t('Display elements as inline'),
       '#description' => t('If enabled, all elements inside the formatted display will appear as inline. Disable if needed or desired.'),
       '#default_value' => $settings['inline'],
-    );
-    $element['css3'] = array(
-      '#title' => t('Use CSS3 !transitions for animation effects', array(
-        '!transitions' => l(t('Transitions'), 'http://www.w3.org/TR/css3-transitions/'),
-      )),
-      '#type' => 'checkbox',
-      '#description' => t('If you require support for IE 7/8, this option will need to be disabled to fallback to jQuery animations.'),
-      '#default_value' => $settings['css3'],
     );
     $element['js_duration'] = array(
       '#title' => t('jQuery animation duration'),
