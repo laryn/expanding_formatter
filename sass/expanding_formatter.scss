@@ -3,6 +3,7 @@
 // Defaults
 .expanding-formatter {
   overflow: hidden;
+  position: relative;
 
   &.expanded .expanding-formatter-ellipsis {
     display: none;
@@ -48,14 +49,6 @@
         display: inline;
       }
     }
-
-    // Expanded
-    &.expanded {
-      .expanding-formatter-ellipsis {
-        display: none;
-      }
-    }
-
     // Slide effect
     &[data-effect="slide"] {
       @include transition(height 500ms ease);
@@ -63,25 +56,41 @@
     // Fade effect
     &[data-effect="fade"] {
       .expanding-formatter-content {
-        @include transition(opacity 100ms ease);
+        @include transition(opacity 500ms ease);
         @include opacity(0);
         overflow: hidden;
       }
+      .expanding-formatter-trigger {
+        @include transition(opacity 500ms ease);
+        @include opacity(0);
+      }
+      &.fading .expanding-formatter-trigger {
+        @include transition(none);
+      }
       &.collapsed {
         .expanding-formatter-content {
-          display: inline-block;
-          height: 0;
-          width: 0;
+          clip: rect(1px 1px 1px 1px);
+          clip: rect(1px, 1px, 1px, 1px);
+          height: 1px;
+          overflow: hidden;
+          position: absolute !important;
+          width: 1px;
         }
-        &.fading .expanding-formatter-content {
+        .expanding-formatter-trigger {
+          @include opacity(1);
+        }
+        &.fading .expanding-formatter-content,
+        &.fading .expanding-formatter-trigger {
           @include opacity(0);
         }
       }
       &.expanded {
-        .expanding-formatter-content {
+        .expanding-formatter-content,
+        .expanding-formatter-trigger {
           @include opacity(1);
         }
-        &.fading .expanding-formatter-content {
+        &.fading .expanding-formatter-content,
+        &.fading .expanding-formatter-trigger {
           @include opacity(0);
         }
       }

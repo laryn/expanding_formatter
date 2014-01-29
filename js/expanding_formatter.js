@@ -81,7 +81,7 @@
     },
     collapseCss: function (data) {
       data.$formatter
-        .removeClass('fading expanded')
+        .removeClass('expanded')
         .addClass('collapsed')
         .height(data.collapsedHeight)
         .trigger('collapsed', [data]);
@@ -152,13 +152,19 @@
       }
     },
     fadeCss: function (data) {
+      data.$formatter.addClass('fading');
       // Collapse.
       if (data.expanded) {
-        data.$formatter.addClass('fading');
-        setTimeout(Drupal.expandingFormatterEffects.collapseCss, 500);
+        setTimeout(function () {
+          data.$formatter.removeClass('fading');
+          Drupal.expandingFormatterEffects.collapseCss(data);
+        }, 500);
       }
       // Expand.
       else {
+        setTimeout(function () {
+          data.$formatter.removeClass('fading');
+        }, 500);
         Drupal.expandingFormatterEffects.expandCss(data);
       }
     },
