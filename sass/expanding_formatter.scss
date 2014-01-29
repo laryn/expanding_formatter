@@ -4,6 +4,10 @@
 .expanding-formatter {
   overflow: hidden;
 
+  &.expanded .expanding-formatter-ellipsis {
+    display: none;
+  }
+
   // Inline summary/expanded content.
   &[data-inline="1"] {
     p {

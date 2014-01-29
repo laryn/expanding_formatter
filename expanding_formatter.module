@@ -131,13 +131,13 @@ function expanding_formatter_field_formatter_settings_form($field, $instance, $v
     );
     $element['effect'] = array(
       '#type' => 'select',
-      '#title' => t('Effect'),
+      '#title' => t('Animation effect'),
       '#default_value' => $settings['effect'],
+      '#empty_value' => '',
       '#options' => array(
         'fade' => t('Fade'),
         'slide' => t('Slide'),
       ),
-      '#required' => TRUE,
     );
     $element['trigger_expanded_label'] = array(
       '#type' => 'textfield',
@@ -197,7 +197,7 @@ function expanding_formatter_field_formatter_settings_summary($field, $instance,
   $summary = array();
   if (strpos($display['type'], '_trimmed') !== FALSE) {
     $summary[t('Trim length')] = $settings['trim_length'] . ($settings['trim_ellipsis'] ? ' (' . t('with ellipsis') . ')' : '');
-    $summary[t('Effect')] = $settings['effect'];
+    $summary[t('Animation effect')] = !empty($settings['effect']) ? $settings['effect'] : t('None');
     if (!empty($settings['trigger_collapsed_label'])) {
       $summary[t('Trigger expanded label')] = $settings['trigger_expanded_label'];
     }
@@ -266,9 +266,15 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
     // Iterate through each item in the field, for unlimited values.
     $attributes = array();
     $attributes['class'] = array('expanding-formatter');
-    $attributes['data-css3'] = $settings['css3'];
-    $attributes['data-effect'] = $settings['effect'];
-    $attributes['data-inline'] = $settings['inline'];
+    if (!empty($settings['inline'])) {
+      $attributes['data-inline'] = $settings['inline'];
+    }
+    if (!empty($settings['css3'])) {
+      $attributes['data-css3'] = $settings['css3'];
+    }
+    if (!empty($settings['effect'])) {
+      $attributes['data-effect'] = $settings['effect'];
+    }
     if (!empty($settings['trigger_collapsed_label'])) {
       $attributes['data-expanded-label'] = $settings['trigger_expanded_label'];
       $attributes['data-collapsed-label'] = $settings['trigger_collapsed_label'];

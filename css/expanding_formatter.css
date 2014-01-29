@@ -1,6 +1,9 @@
 .expanding-formatter {
   overflow: hidden;
 }
+.expanding-formatter.expanded .expanding-formatter-ellipsis {
+  display: none;
+}
 .expanding-formatter[data-inline="1"] p {
   margin: 0 0 1.2em;
 }
