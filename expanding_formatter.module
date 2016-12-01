@@ -228,7 +228,7 @@ function expanding_formatter_field_formatter_settings_summary($field, $instance,
  * Implements hook_field_formatter_view().
  */
 function expanding_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  if ($display['type'] === 'expanding_formatter_text_trimmed' || $display['type'] === 'expanding_formatter_text_summary_or_trimmed') {
+  if (($items && $display['type'] === 'expanding_formatter_text_trimmed' || $display['type'] === 'expanding_formatter_text_summary_or_trimmed')) {
     // Get the settings and extend default ones that don't exist.
     $settings = $display['settings'];
     $settings += expanding_formatter_default_settings();
