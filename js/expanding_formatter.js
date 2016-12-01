@@ -1,10 +1,10 @@
-/*global Drupal:true */
+/*global Backdrop:true */
 (function ($) {
 
   /**
    * Logic for expanding/collapsing fields that configured with a toggle.
    */
-  Drupal.behaviors.expandingFormatter = {
+  Backdrop.behaviors.expandingFormatter = {
     attach: function (context) {
       var $formatters = $(context).find('.expanding-formatter');
       $formatters.once('expanding-formatter', function () {
@@ -35,19 +35,19 @@
         $trigger.bind('click', function () {
           data.expanded = $formatter.hasClass('expanded');
           // Non-CSS and CSS effects.
-          if (typeof Drupal.expandingFormatterEffects[data.effect] !== 'undefined') {
+          if (typeof Backdrop.expandingFormatterEffects[data.effect] !== 'undefined') {
             // Use CSS3 if applicable.
-            if (data.css3 && typeof Drupal.expandingFormatterEffects[data.effect + 'Css'] !== 'undefined') {
-              Drupal.expandingFormatterEffects[data.effect + 'Css'](data);
+            if (data.css3 && typeof Backdrop.expandingFormatterEffects[data.effect + 'Css'] !== 'undefined') {
+              Backdrop.expandingFormatterEffects[data.effect + 'Css'](data);
             }
             // Otherwise use non-CSS effect.
             else {
-              Drupal.expandingFormatterEffects[data.effect](data);
+              Backdrop.expandingFormatterEffects[data.effect](data);
             }
           }
           // CSS3 effects.
-          else if (data.css3 && typeof Drupal.expandingFormatterEffects[data.effect + 'Css'] !== 'undefined') {
-            Drupal.expandingFormatterEffects[data.effect + 'Css'](data);
+          else if (data.css3 && typeof Backdrop.expandingFormatterEffects[data.effect + 'Css'] !== 'undefined') {
+            Backdrop.expandingFormatterEffects[data.effect + 'Css'](data);
           }
           // Error.
           else {
@@ -64,7 +64,7 @@
    * If the effect supports CSS3, it should create an additional method like
    * 'effectNameCss3'.
    */
-  Drupal.expandingFormatterEffects = Drupal.expandingFormatter || {
+  Backdrop.expandingFormatterEffects = Backdrop.expandingFormatter || {
     normal: function (data) {
       if (data.expanded) {
         data.$formatter
@@ -157,7 +157,7 @@
       if (data.expanded) {
         setTimeout(function () {
           data.$formatter.removeClass('fading');
-          Drupal.expandingFormatterEffects.collapseCss(data);
+          Backdrop.expandingFormatterEffects.collapseCss(data);
         }, 500);
       }
       // Expand.
@@ -165,7 +165,7 @@
         setTimeout(function () {
           data.$formatter.removeClass('fading');
         }, 500);
-        Drupal.expandingFormatterEffects.expandCss(data);
+        Backdrop.expandingFormatterEffects.expandCss(data);
       }
     },
     slide: function (data) {
@@ -210,11 +210,11 @@
       }, 500);
       // Collapse.
       if (data.expanded) {
-        Drupal.expandingFormatterEffects.collapseCss(data);
+        Backdrop.expandingFormatterEffects.collapseCss(data);
       }
       // Expand.
       else {
-        Drupal.expandingFormatterEffects.expandCss(data);
+        Backdrop.expandingFormatterEffects.expandCss(data);
       }
     }
   };

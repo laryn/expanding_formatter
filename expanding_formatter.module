@@ -33,7 +33,7 @@ function expanding_formatter_theme() {
  * @see expanding_formatter_default_settings()
  */
 function theme_expanding_formatter_ellipsis($variables) {
-  return '<span' . drupal_attributes($variables['attributes']) . '>' . $variables['ellipsis'] . '</span>';
+  return '<span' . backdrop_attributes($variables['attributes']) . '>' . $variables['ellipsis'] . '</span>';
 }
 
 /**
@@ -234,7 +234,7 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
     $settings += expanding_formatter_default_settings();
 
     // Attach the necessary resources.
-    $module_path = drupal_get_path('module', 'expanding_formatter');
+    $module_path = backdrop_get_path('module', 'expanding_formatter');
     $element = array(
       '#attached' => array(
         'css' => array($module_path . '/css/expanding_formatter.css'),
@@ -391,25 +391,25 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
  */
 function expanding_formatter_text_summary($text, $format = NULL, $size = NULL) {
 
-  if (!isset($size)) {
-    // What used to be called 'teaser' is now called 'summary', but
-    // the variable 'teaser_length' is preserved for backwards compatibility.
-    $size = variable_get('teaser_length', 600);
+  if (!isset($size) || $size < 0) {
+    // Find where the delimiter is in the body.
+    $delimiter = strpos($text, '<!--break-->');
+
+    if ($delimiter === FALSE) {
+      // If there is size and no delimiter, the entire body is the summary.
+      return $text;
+    } else {
+      // If a valid delimiter has been specified, use it to chop off the summary.
+      return substr($text, 0, $delimiter);
+    }
+    
+    $size = 600;
   }
 
-  // Find where the delimiter is in the body.
-  $delimiter = strpos($text, '<!--break-->');
-
-  // If the size is zero, and there is no delimiter, the entire body is the
-  // summary.
-  if ($size == 0 && $delimiter === FALSE) {
-    return $text;
-  }
-
-  // If a valid delimiter has been specified, use it to chop off the summary.
-  if ($delimiter !== FALSE) {
-    return substr($text, 0, $delimiter);
-  }
+  if ($size == 0) {
+    // If the size is zero, there is no summary, just the button to open the body.
+    return "";
+  }  
 
   // Retrieve the filters of the specified text format, if any.
   if (isset($format)) {
@@ -424,7 +424,7 @@ function expanding_formatter_text_summary($text, $format = NULL, $size = NULL) {
   }
 
   // If we have a short body, the entire body is the summary.
-  if (drupal_strlen($text) <= $size) {
+  if (backdrop_strlen($text) <= $size) {
     return $text;
   }
 

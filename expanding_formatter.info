@@ -1,6 +1,8 @@
 name = Expanding Formatter
 description = Provides a formatter that allows text fields to expand the rest of the trimmed or summary with a customizable "expand" link.
 package = Fields
-core = 7.x
+backdrop = 1.x
+type = module
+
 dependencies[] = field
 dependencies[] = text
