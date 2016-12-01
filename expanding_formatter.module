@@ -45,7 +45,7 @@ function expanding_formatter_default_settings() {
     'trim_ellipsis' => TRUE,
     'effect' => 'slide',
     'trigger_expanded_label' => t('Expand'),
-    'trigger_collapsed_label' => '',
+    'trigger_collapsed_label' => t('Collapse'),
     'trigger_classes' => 'button',
     'inline' => TRUE,
     'css3' => TRUE,
@@ -256,7 +256,7 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
       ),
       'link' => array(
         '#theme' => 'link',
-        '#text' => $settings['trigger_expanded_label'],
+        '#text' => t($settings['trigger_expanded_label']),
         '#path' => 'javascript:void(0)',
         '#options' => array(
           'external' => TRUE,
@@ -281,8 +281,8 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
       $attributes['data-effect'] = $settings['effect'];
     }
     if (!empty($settings['trigger_collapsed_label'])) {
-      $attributes['data-expanded-label'] = $settings['trigger_expanded_label'];
-      $attributes['data-collapsed-label'] = $settings['trigger_collapsed_label'];
+      $attributes['data-expanded-label'] = t($settings['trigger_expanded_label']);
+      $attributes['data-collapsed-label'] = t($settings['trigger_collapsed_label']);
     }
     if (empty($settings['css3'])) {
       $attributes['data-js-duration'] = $settings['js_duration'];
