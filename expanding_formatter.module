@@ -272,13 +272,19 @@ function expanding_formatter_field_formatter_view($entity_type, $entity, $field,
         );
       }
       else {
+        if ($settings['trim_length'] === 0) {
+          $summary = '';
+        }
+        else {
+          $summary = text_summary($original, $instance['settings']['text_processing'] ? $item['format'] : NULL, $settings['trim_length']);
+        }
         $element[$delta]['summary'] = array(
           '#theme_wrappers' => array('container'),
           '#attributes' => array(
             'class' => array('expanding-formatter-summary'),
           ),
           'value' => array(
-            '#markup' => text_summary($original, $instance['settings']['text_processing'] ? $item['format'] : NULL, $settings['trim_length']),
+            '#markup' => $summary,
           ),
         );
       }
